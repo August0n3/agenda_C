@@ -12,23 +12,19 @@ struct contato
 
 //criando contatos
 struct contato *criar_contato(){
-    char nome[80];
-    char telefone[15];
-    char email[80];
-    printf("Digite o do nome contato: ");
-    scanf("%s", nome);
-    printf("Digite o do telefone contato: ");
-    scanf("%s", telefone);
-    printf("Digite o do email contato: ");
-    scanf("%s", email);
-
     struct contato *novo = (struct contato *)malloc(sizeof(struct contato));
     novo->nome = (char *)malloc(sizeof(char));
     novo->telefone = (char *)malloc(sizeof(char));
     novo->email = (char *)malloc(sizeof(char));
-    strcpy(novo->nome,nome);
-    strcpy(novo->telefone,telefone);                                                                                                 
-    strcpy(novo->email,email);
+
+    printf("Digite o do nome contato: ");
+    scanf("%s", novo->nome);
+    printf("Digite o do telefone contato: ");
+    scanf("%s", novo->telefone);
+    printf("Digite o do email contato: ");
+    scanf("%s", novo->email);
+
+
     return novo;
 }
 
@@ -74,20 +70,22 @@ int inserir(agenda_ctt Hash, struct contato *c){
     }
 }
 
+// nao conseguimos fazer a funcao pra exportar :(
+
 //funcao para buscar na tabela hash
 struct contato *buscarContato (agenda_ctt Hash, struct contato *c){
     size_t key = concatenacao(c->nome);
     key = funcHashMult(key);
     struct contato *novo = NULL;
-    int key_inicio = key;
     int m = 0;
-    while(1){
-        if(Hash[key] == c){
+    do{
+        
+        if (strcmp(Hash[key]->nome, c->nome) == 0 && strcmp(Hash[key]->telefone, c->telefone) == 0 && strcmp(Hash[key]->email, c->email) == 0){
         novo = Hash[key];
         break;
-        }
-        key++;
+            }
         
+        key++;
 
         if(key > size){
             key = key%size;
@@ -98,7 +96,7 @@ struct contato *buscarContato (agenda_ctt Hash, struct contato *c){
             
         }
 
-    }
+    }while(1);
     return novo;
 }
 
@@ -111,18 +109,31 @@ void listarContatos(agenda_ctt Hash){
         }
 }
 }
-    
+
 
 //funcao para remover da tabela
 void removerContato(agenda_ctt Hash, struct contato *c){
     struct contato *novo = buscarContato(Hash, c);
-    free(novo);
+     if (novo != NULL) {
+        
+        size_t key = concatenacao(c->nome);
+        key = funcHashMult(key);
+
+        while (Hash[key] != novo) {
+            key++;
+            if (key >= size) {
+                key = key % size;
+            }
+        }
+        free(Hash[key]);
+        Hash[key] = NULL;
+    }
 
 }
 
 int main(){
-    struct contato *novo;
-    struct contato *busca;
+    struct contato *novo = (struct contato*)malloc(sizeof(struct contato));
+    struct contato *busca = (struct contato*)malloc(sizeof(struct contato));
     agenda_ctt agenda;
     int i;
     for (i = 0; i < size; i++) {
@@ -146,7 +157,6 @@ int main(){
             if (novo !=NULL){
             printf("\n Nome: %s \n Telefone: %s \n Email: %s\n", novo->nome , novo->telefone, novo->email);
             }
-            
            
             break;
         case (3) :
